@@ -22,7 +22,8 @@
       }) 
       + "\"";
   }
-  var toString = Object.prototype.toString;
+  var toString = Object.prototype.toString,
+      _replacer = null, _space = gap = "";
   function walk(o) {
     if (o && o.toJSON) {
       return o.toJSON();
@@ -52,25 +53,38 @@
 
   function walkArr(arr) {
     var s = "[", item;
+    if (_space) {
+      s = "[\n", gap += _space;
+    }
+
     for (var i = 0, length = arr.length - 1; true; i++) {
-      item = arr[i];
+      item = _replacer ? _replacer("", arr[i]) : arr[i];
+      _space && (s += gap);
       if (item === undefined) {
         s += "null";
       } else {
-        s += walk(arr[i]);
+        s += walk(item);
       }
 
       if (i === length) {
         break;
       } else {
-        s += ",";
+        s += _space ? ",\n" : ",";
       }
     }
-    return s += "]";
+
+    if (_space) {
+      gap = gap.substr(0, gap.length - _space.length);
+      return s + "\n" +gap + "]";
+    }
+    return s + "]";
   }
 
   function walkObj(obj) {
-    var keys = [], item, s = "{";
+    var keys = [], item, s = "{", value;
+    if (_space) {
+      s = "{\n", gap += _space;
+    }
     for (var key in obj) {
       if (obj.hasOwnProperty(key)) {
         if (obj[key] !== undefined) {
@@ -81,17 +95,28 @@
 
     for (var i = 0, length = keys.length - 1; true; i++) {
       item = keys[i];
-      s += "\"" + item.toString() + "\":" + walk(obj[keys[i]]);
-
+      value = _replacer ? _replacer("", obj[keys[i]]) : obj[keys[i]];
+      _space && (s += gap);
+      s += "\"" + item.toString() + _space ? "\": ": "\":" + walk(value);
       if (i === length) {
         break;
       } else {
-        s += ",";
+        s += _space ? ",\n" : ",";
       }
     }
-
-    return s  + "}";
+    if (_space) {
+      gap = gap.substr(0, gap.length - _space.length);
+      return s + "\n" + gap + "}";
+    }
+    return s + "}";
   }
 
-  exports.stringify = walk;
+  exports.stringify = function(value, replacer, space) {
+    var r;
+    _replacer = replacer, _space = space;
+    value = _replacer ? _replacer("", value) : value;
+    r = walk(value)
+    _replacer = null, _space = gap = "";
+    return r;
+  };
 })(this);
