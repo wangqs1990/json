@@ -97,7 +97,7 @@
       item = keys[i];
       value = _replacer ? _replacer("", obj[keys[i]]) : obj[keys[i]];
       _space && (s += gap);
-      s += "\"" + item.toString() + _space ? "\": ": "\":" + walk(value);
+      s += "\"" + item.toString() + ( _space ? "\": ": "\":" ) + walk(value);
       if (i === length) {
         break;
       } else {
