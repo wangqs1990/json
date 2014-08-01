@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>test json</title>
+</head>
+<body>
+  <script src="./parse.js"></script>
+  <script>
+  function equals(v1, v2) {
+    if (typeof v1 !== typeof v2) {
+      return false;
+    }
+    if (v1 instanceof Object) {
+      for (var item in v1) {
+        if (!equals(v1[item], v2[item])) {
+          return false;
+        }
+      }
+    } else {
+      return v1 === v2;
+    }
+    return true;
+  }
+
+  console.assert(parse("{\"a\": 1}"), {a:1}, "{\"a\": 1} fails");
+  </script>
+</body>
+</html> 
